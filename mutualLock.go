@@ -294,11 +294,10 @@ func (mutualLock *MutualLock) ReleaseResource(releaseRequestArg *ReleaseResource
 	mutualLock.requestQueueLock.Lock()
 	defer mutualLock.requestQueueLock.Unlock()
 
-	size := mutualLock.requestQueue.Len()
 	node := mutualLock.requestQueue.Front()
 	var temp *list.Element
 	var requestMsg RequestMsg
-	for i := 0; i < size; i++ {
+	for node != nil {
 		requestMsg = node.Value.(RequestMsg)
 		if requestMsg.Process == releaseRequestArg.Process &&
 			requestMsg.Time <= releaseRequestArg.Time {
@@ -306,6 +305,8 @@ func (mutualLock *MutualLock) ReleaseResource(releaseRequestArg *ReleaseResource
 			temp = node
 			node = node.Next()
 			mutualLock.requestQueue.Remove(temp)
+		} else {
+			node = node.Next()
 		}
 	}
 
